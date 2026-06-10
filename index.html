@@ -69,6 +69,11 @@
     .media-card:hover .fav-btn { opacity: 1; }
     .card-thumb { aspect-ratio: 16/9; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 30px; position: relative; overflow: hidden; }
     .card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .card-thumb.audio-square { aspect-ratio: 1/1; background: linear-gradient(135deg, #12122a 0%, #1a1a3a 50%, #0d0d1a 100%); border-radius: 6px 6px 0 0; }
+    .card-thumb.audio-square img { border-radius: 0; }
+    .album-vinyl { position: absolute; right: -20px; bottom: -20px; width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, #222 20%, #111 21%, #333 40%, #111 41%, #1a1a1a 100%); opacity: 0.25; pointer-events: none; }
+    .album-label { position: absolute; bottom: 8px; left: 10px; right: 10px; }
+    .album-label-text { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); opacity: 0.7; }
     .card-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
     .play-circle { width: 38px; height: 38px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #111; font-size: 15px; }
     .card-info { padding: 9px 11px; }
@@ -87,12 +92,6 @@
     .audio-bar { width: 3px; background: var(--accent); border-radius: 2px; opacity: 0.6; }
 
     /* PHOTO GRID — cuadrada */
-    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 28px; }
-    .photo-card { aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; cursor: pointer; position: relative; background: var(--surface2); border: 1px solid var(--border); transition: all 0.2s; }
-    .photo-card:hover { transform: scale(1.03); border-color: var(--border2); }
-    .photo-card:hover .card-overlay { opacity: 1; }
-    .photo-card img { width: 100%; height: 100%; object-fit: cover; }
-    .photo-card .card-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; font-size: 24px; }
 
     /* FOLDER PILLS */
     .folder-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
@@ -138,15 +137,6 @@
     #modal-gdrive-btn { font-size: 12px; color: var(--muted); text-decoration: none; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 5px 13px; white-space: nowrap; }
 
     /* MODAL FOTO */
-    #photo-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.97); z-index: 100; display: none; align-items: center; justify-content: center; padding: 16px; }
-    #photo-modal.open { display: flex; }
-    #photo-modal-inner { position: relative; max-width: 90vw; max-height: 90vh; }
-    #photo-modal-img { max-width: 90vw; max-height: 80vh; object-fit: contain; border-radius: 8px; display: block; }
-    #photo-modal-close { position: absolute; top: -38px; right: 0; background: none; border: none; color: var(--muted); font-size: 26px; cursor: pointer; }
-    #photo-modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--text); margin-top: 10px; text-align: center; }
-    .photo-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; color: var(--text); font-size: 24px; cursor: pointer; padding: 8px 12px; border-radius: 8px; }
-    .photo-nav.prev { left: -48px; }
-    .photo-nav.next { right: -48px; }
 
     /* MODAL AUDIO */
     #audio-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: none; align-items: center; justify-content: center; padding: 16px; }
@@ -196,7 +186,6 @@
       .hero-title { font-size: 24px; max-width: 240px; }
       .hero-meta { display: none; }
       .video-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .photo-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
       .fav-btn { opacity: 1; }
       #progress-wrap { display: none; }
       #vol-wrap { display: none; }
@@ -206,7 +195,6 @@
       #modal-iframe { border-radius: 0; }
       #modal-close { top: 10px; right: 12px; color: #fff; font-size: 20px; background: rgba(0,0,0,0.5); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; z-index: 2; }
       #modal-footer { padding: 10px 14px 16px; }
-      .photo-nav { display: none; }
       #audio-modal-inner { padding: 24px 20px; }
     }
     @media (min-width: 641px) and (max-width: 900px) {
@@ -241,7 +229,6 @@
       <div class="nav-label">Navegar</div>
       <div class="nav-item active" onclick="setView('home');closeSidebar()"><span class="nav-icon">⊞</span> Inicio</div>
       <div class="nav-item" onclick="setView('videos');closeSidebar()"><span class="nav-icon">▶</span> Videos</div>
-      <div class="nav-item" onclick="setView('photos');closeSidebar()"><span class="nav-icon">🖼</span> Fotos</div>
       <div class="nav-item" onclick="setView('audio');closeSidebar()"><span class="nav-icon">♪</span> Audio</div>
       <div class="nav-item" onclick="setView('recent');closeSidebar()"><span class="nav-icon">◷</span> Recientes</div>
       <div class="nav-item" onclick="setView('favorites');closeSidebar()"><span class="nav-icon">♡</span> Favoritos</div>
@@ -301,17 +288,6 @@
   </div>
 </div>
 
-<!-- FOTO MODAL -->
-<div id="photo-modal">
-  <div id="photo-modal-inner">
-    <button id="photo-modal-close" onclick="closePhotoModal()">✕</button>
-    <button class="photo-nav prev" onclick="photoNav(-1)">‹</button>
-    <img id="photo-modal-img" src="" alt="" />
-    <button class="photo-nav next" onclick="photoNav(1)">›</button>
-    <div id="photo-modal-title"></div>
-  </div>
-</div>
-
 <!-- AUDIO MODAL -->
 <div id="audio-modal">
   <div id="audio-modal-inner">
@@ -342,11 +318,10 @@ const IMAGE_TYPES = ["image/jpeg","image/jpg","image/png","image/webp","image/gi
 const ALL_TYPES   = [...VIDEO_TYPES, ...AUDIO_TYPES, ...IMAGE_TYPES];
 
 let tokenClient, accessToken = null;
-let allFiles = [], allVideos = [], allPhotos = [], allAudio = [];
+let allFiles = [], allVideos = [], allAudio = [];
 let coverMap = {}; // filename (sin ext) → thumbnailLink o driveUrl de imagen
 let folders = [];
 let currentPlaylist = [], currentIdx = 0, currentItem = null;
-let currentPhotoList = [], currentPhotoIdx = 0;
 let favorites = JSON.parse(localStorage.getItem('sv_favs')   || '[]');
 let recentIds = JSON.parse(localStorage.getItem('sv_recent') || '[]');
 
@@ -369,7 +344,7 @@ function showLoginScreen() {
 function signIn() { tokenClient.requestAccessToken({ prompt: '' }); }
 function signOut() {
   google.accounts.oauth2.revoke(accessToken, () => {});
-  accessToken = null; allFiles = []; allVideos = []; allPhotos = []; allAudio = []; folders = [];
+  accessToken = null; allFiles = []; allVideos = []; allAudio = []; folders = [];
   document.getElementById('auth-area').innerHTML = `<button id="login-btn" onclick="signIn()">Conectar Drive</button>`;
   showLoginScreen();
 }
@@ -461,20 +436,8 @@ async function loadFiles() {
 
   allVideos = allFiles.filter(f => f.type === 'video');
   allAudio  = allFiles.filter(f => f.type === 'audio');
-  // Fotos separadas
-  allPhotos = imageFiles.map(f => ({
-    ...f,
-    folderId:   f.parents ? f.parents[0] : rootId,
-    folderName: folderNames[f.parents?.[0]] || ROOT_NAME,
-    nameClean:  f.name.replace(/\.[^/.]+$/, ''),
-    cover: f.thumbnailLink ? f.thumbnailLink.replace('=s220','=s400') : `https://drive.google.com/thumbnail?id=${f.id}&sz=s400`,
-    type: 'photo',
-    driveUrl: `https://drive.google.com/file/d/${f.id}/view`,
-    fullUrl: `https://drive.google.com/thumbnail?id=${f.id}&sz=s1600`,
-  }));
-
   // Carpetas con contenido
-  const allItems = [...allFiles, ...allPhotos];
+  const allItems = [...allFiles];
   const folderIdsWithItems = [...new Set(allItems.map(f => f.folderId))];
   folders = folderIdsWithItems.map(fid => ({
     id: fid, name: folderNames[fid] || ROOT_NAME,
@@ -506,13 +469,12 @@ function renderSidebar() {
 
 function renderHomeView() {
   const hasVideos = allVideos.length > 0;
-  const hasPhotos = allPhotos.length > 0;
   const hasAudio  = allAudio.length  > 0;
-  if (!hasVideos && !hasPhotos && !hasAudio) {
+  if (!hasVideos && !hasAudio) {
     document.getElementById('home-view').innerHTML = `<div class="empty-state"><div class="empty-icon">🎬</div><div>No encontré archivos en <strong style="color:var(--text)">${ROOT_NAME}</strong>.</div></div>`;
     return;
   }
-  const recent = recentIds.map(id => [...allFiles,...allPhotos].find(f => f.id === id)).filter(Boolean).slice(0,8);
+  const recent = recentIds.map(id => allFiles.find(f => f.id === id)).filter(Boolean).slice(0,8);
   const featured = allVideos[Math.floor(Math.random() * Math.min(allVideos.length || 1, 10))];
   const heroThumb = featured?.cover || null;
 
@@ -531,7 +493,6 @@ function renderHomeView() {
     ${recent.length ? `<div class="section-header"><span class="section-title">Recientes</span><span class="section-more" onclick="setView('recent')">Ver todos</span></div><div class="video-grid">${recent.map(mediaCardHtml).join('')}</div>` : ''}
     ${hasVideos ? `<div class="section-header"><span class="section-title">Videos</span><span class="section-more" onclick="setView('videos')">Ver todos (${allVideos.length})</span></div><div class="video-grid">${allVideos.slice(0,8).map(mediaCardHtml).join('')}</div>` : ''}
     ${hasAudio ? `<div class="section-header"><span class="section-title">Audio</span><span class="section-more" onclick="setView('audio')">Ver todos (${allAudio.length})</span></div><div class="video-grid">${allAudio.slice(0,8).map(mediaCardHtml).join('')}</div>` : ''}
-    ${hasPhotos ? `<div class="section-header"><span class="section-title">Fotos</span><span class="section-more" onclick="setView('photos')">Ver todas (${allPhotos.length})</span></div><div class="photo-grid">${allPhotos.slice(0,12).map(photoCardHtml).join('')}</div>` : ''}
     ${folders.length > 1 ? `<div class="section-header"><span class="section-title">Carpetas</span></div><div class="folder-pills">${folders.map(f=>`<div class="folder-pill" onclick="setView('folder:${f.id}')">📁 ${esc(f.name)} <span style="opacity:.5">${f.count}</span></div>`).join('')}</div>` : ''}
   `;
 }
@@ -539,18 +500,21 @@ function renderHomeView() {
 function mediaCardHtml(f) {
   const isFav = favorites.includes(f.id);
   const isAudio = f.type === 'audio';
+  const thumbClass = isAudio ? 'card-thumb audio-square' : 'card-thumb';
   const thumbHtml = f.cover
     ? `<img src="${f.cover}" alt="" onerror="this.style.display='none'" />`
     : isAudio
-      ? `<div class="audio-thumb" style="position:absolute;inset:0"><span class="audio-icon">🎵</span><div class="audio-wave">${[6,10,14,10,8,12,16,10,7].map(h=>`<div class="audio-bar" style="height:${h}px"></div>`).join('')}</div></div>`
+      ? `<span style="font-size:38px;position:relative;z-index:1">🎵</span><div class="album-vinyl"></div>`
       : `<span style="font-size:30px">🎬</span>`;
   const badge = isAudio ? `<div class="card-type-badge">AUDIO</div>` : '';
+  const albumLabel = isAudio ? `<div class="album-label"><div class="album-label-text">${esc(f.folderName)}</div></div>` : '';
   return `<div class="media-card">
-    <div class="card-thumb" onclick="openItem('${f.id}')">
+    <div class="${thumbClass}" onclick="openItem('${f.id}')">
       ${thumbHtml}
       <div class="card-overlay"><div class="play-circle">${isAudio?'♪':'▶'}</div></div>
       ${f.duration ? `<div class="card-duration">${f.duration}</div>` : ''}
       ${badge}
+      ${albumLabel}
     </div>
     <button class="fav-btn ${isFav?'active':''}" onclick="toggleFav('${f.id}',event)">${isFav?'♥':'♡'}</button>
     <div class="card-info" onclick="openItem('${f.id}')">
@@ -560,12 +524,6 @@ function mediaCardHtml(f) {
   </div>`;
 }
 
-function photoCardHtml(f) {
-  return `<div class="photo-card" onclick="openPhoto('${f.id}')">
-    <img src="${f.cover}" alt="${esc(f.nameClean)}" loading="lazy" onerror="this.src=''" />
-    <div class="card-overlay">🔍</div>
-  </div>`;
-}
 
 // ── VISTAS ──
 function setView(view) {
@@ -573,21 +531,18 @@ function setView(view) {
   const navItems = document.querySelectorAll('.nav-item');
   if (view==='home')      { navItems[0].classList.add('active'); renderHomeView(); return; }
   if (view==='videos')    { navItems[1].classList.add('active'); renderMediaList('Videos', allVideos); return; }
-  if (view==='photos')    { navItems[2].classList.add('active'); renderPhotoList('Fotos', allPhotos); return; }
   if (view==='audio')     { navItems[3].classList.add('active'); renderMediaList('Audio', allAudio); return; }
-  if (view==='recent')    { navItems[4].classList.add('active'); renderMediaList('Recientes', recentIds.map(id=>[...allFiles,...allPhotos].find(f=>f.id===id)).filter(Boolean)); return; }
-  if (view==='favorites') { navItems[5].classList.add('active'); renderMediaList('Favoritos ♥', allFiles.filter(f=>favorites.includes(f.id))); return; }
+  if (view==='recent')    { navItems[3].classList.add('active'); renderMediaList('Recientes', recentIds.map(id=>allFiles.find(f=>f.id===id)).filter(Boolean)); return; }
+  if (view==='favorites') { navItems[4].classList.add('active'); renderMediaList('Favoritos ♥', allFiles.filter(f=>favorites.includes(f.id))); return; }
   if (view.startsWith('folder:')) {
     const fid = view.split(':')[1];
     const folder = folders.find(f => f.id === fid);
-    const items = [...allFiles, ...allPhotos].filter(f => f.folderId === fid);
+    const items = allFiles.filter(f => f.folderId === fid);
     const vids  = items.filter(f => f.type==='video');
     const aud   = items.filter(f => f.type==='audio');
-    const imgs  = items.filter(f => f.type==='photo');
     let html = `<div class="section-title" style="margin-bottom:20px">${folder?esc(folder.name):'Carpeta'}</div>`;
     if (vids.length)  html += `<div class="section-header"><span class="section-title">Videos</span></div><div class="video-grid">${vids.map(mediaCardHtml).join('')}</div>`;
     if (aud.length)   html += `<div class="section-header"><span class="section-title">Audio</span></div><div class="video-grid">${aud.map(mediaCardHtml).join('')}</div>`;
-    if (imgs.length)  html += `<div class="section-header"><span class="section-title">Fotos</span></div><div class="photo-grid">${imgs.map(photoCardHtml).join('')}</div>`;
     document.getElementById('home-view').innerHTML = html || `<div class="empty-state"><div class="empty-icon">📭</div><div>No hay archivos aquí</div></div>`;
   }
 }
@@ -598,11 +553,6 @@ function renderMediaList(title, items) {
     : `<div class="section-header"><span class="section-title">${title}</span><span style="font-size:12px;color:var(--muted)">${items.length} archivos</span></div><div class="video-grid">${items.map(mediaCardHtml).join('')}</div>`;
 }
 
-function renderPhotoList(title, items) {
-  document.getElementById('home-view').innerHTML = !items.length
-    ? `<div class="section-title" style="margin-bottom:20px">${title}</div><div class="empty-state"><div class="empty-icon">📭</div><div>No hay fotos aquí</div></div>`
-    : `<div class="section-header"><span class="section-title">${title}</span><span style="font-size:12px;color:var(--muted)">${items.length} fotos</span></div><div class="photo-grid">${items.map(photoCardHtml).join('')}</div>`;
-}
 
 // ── SIDEBAR MOBILE ──
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('open'); }
@@ -612,8 +562,7 @@ function closeSidebar() { document.getElementById('sidebar').classList.remove('o
 document.getElementById('search-input').addEventListener('input', function() {
   const q = this.value.trim().toLowerCase();
   if (!q) { renderHomeView(); return; }
-  const results = [...allFiles, ...allPhotos].filter(f => f.nameClean.toLowerCase().includes(q) || f.folderName.toLowerCase().includes(q));
-  renderMediaList(`"${this.value}"`, results.filter(f=>f.type!=='photo'));
+  renderMediaList(`"${this.value}"`, allFiles.filter(f => f.nameClean.toLowerCase().includes(q) || f.folderName.toLowerCase().includes(q)));
 });
 
 // ── FAVORITOS ──
@@ -685,24 +634,6 @@ function toggleAudioPlay() {
 }
 document.getElementById('audio-el').addEventListener('ended', () => nextItem());
 
-// ── FOTO ──
-function openPhoto(id) {
-  currentPhotoList = allPhotos;
-  currentPhotoIdx  = allPhotos.findIndex(f => f.id === id);
-  showPhoto(currentPhotoIdx);
-  document.getElementById('photo-modal').classList.add('open');
-}
-function showPhoto(idx) {
-  const f = currentPhotoList[idx];
-  if (!f) return;
-  document.getElementById('photo-modal-img').src = f.fullUrl;
-  document.getElementById('photo-modal-title').textContent = f.nameClean;
-}
-function photoNav(dir) {
-  currentPhotoIdx = (currentPhotoIdx + dir + currentPhotoList.length) % currentPhotoList.length;
-  showPhoto(currentPhotoIdx);
-}
-function closePhotoModal() { document.getElementById('photo-modal').classList.remove('open'); }
 
 // ── PLAYER BAR ──
 function updatePlayerBar(item) {
@@ -721,12 +652,9 @@ function updateRecent(id) {
 
 // ── TECLADO ──
 document.addEventListener('keydown', e => {
-  if (e.key==='Escape') { closeModal(); closePhotoModal(); closeAudioModal(); }
-  if (e.key==='ArrowLeft'  && document.getElementById('photo-modal').classList.contains('open')) photoNav(-1);
-  if (e.key==='ArrowRight' && document.getElementById('photo-modal').classList.contains('open')) photoNav(1);
+  if (e.key==='Escape') { closeModal(); closeAudioModal(); }
 });
 document.getElementById('modal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
-document.getElementById('photo-modal').addEventListener('click', function(e) { if(e.target===this) closePhotoModal(); });
 document.getElementById('audio-modal').addEventListener('click', function(e) { if(e.target===this) closeAudioModal(); });
 
 // ── UTILS ──

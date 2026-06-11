@@ -5,241 +5,361 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>StageVault</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #080808; --surface: #111111; --surface2: #181818;
-      --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
-      --text: #f0ede8; --muted: #888; --accent: #c8f060; --accent2: #a8d040;
-      --player-h: 72px; --sidebar-w: 220px;
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface2: #1c1c1c;
+      --surface3: #242424;
+      --border: rgba(255,255,255,0.06);
+      --border2: rgba(255,255,255,0.12);
+      --text: #f0ede8;
+      --muted: #666;
+      --muted2: #999;
+      --accent: #e02020;
+      --accent2: #ff3333;
+      --accent-glow: rgba(224,32,32,0.15);
+      --sidebar-w: 240px;
+      --player-h: 72px;
     }
-    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow: hidden; }
-    #app { display: grid; grid-template-rows: 56px 1fr var(--player-h); height: 100vh; }
-    #main { display: grid; grid-template-columns: var(--sidebar-w) 1fr; overflow: hidden; position: relative; }
-    #content { overflow-y: auto; padding: 24px 28px 20px; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; }
 
-    /* TOPBAR */
-    #topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--border); background: var(--bg); gap: 12px; }
-    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--text); flex-shrink: 0; }
-    .logo span { color: var(--accent); }
-    #search-wrap { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; flex: 1; max-width: 300px; }
-    #search-wrap input { background: none; border: none; outline: none; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); width: 100%; }
-    #search-wrap input::placeholder { color: var(--muted); }
-    #login-btn { display: flex; align-items: center; gap: 8px; background: var(--accent); color: #111; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; border: none; border-radius: 20px; padding: 7px 14px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
-    #user-info { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    #user-avatar { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--accent); }
-    #user-name { font-size: 13px; color: var(--muted); }
-    #logout-btn { font-size: 12px; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 12px; padding: 4px 10px; cursor: pointer; white-space: nowrap; }
-    #menu-btn { display: none; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; padding: 4px; flex-shrink: 0; }
+    /* ── LAYOUT ── */
+    #app { display: grid; grid-template-rows: 60px 1fr var(--player-h); height: 100vh; }
+    #main { display: grid; grid-template-columns: var(--sidebar-w) 1fr; overflow: hidden; }
+    #content { overflow-y: auto; padding: 28px 32px; background: var(--bg); }
+    #content::-webkit-scrollbar { width: 3px; }
+    #content::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
 
-    /* SIDEBAR */
-    #sidebar { border-right: 1px solid var(--border); padding: 16px 0; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; transition: transform 0.25s ease; }
-    .nav-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); padding: 10px 20px 5px; }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; font-size: 13px; color: var(--muted); cursor: pointer; border-left: 2px solid transparent; transition: all 0.15s; }
-    .nav-item:hover { color: var(--text); background: var(--surface); }
-    .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(200,240,96,0.05); }
-    .nav-icon { font-size: 15px; width: 18px; text-align: center; }
-    .folder-item { padding-left: 28px; font-size: 12px; }
-    .folder-count { margin-left: auto; font-size: 11px; color: #555; }
-    #sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 49; }
+    /* ── TOPBAR ── */
+    #topbar {
+      display: flex; align-items: center; gap: 16px;
+      padding: 0 24px; background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    #menu-btn { display: none; background: none; border: none; color: var(--muted2); font-size: 20px; cursor: pointer; flex-shrink: 0; }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 3px; flex-shrink: 0; }
+    .logo-stage { color: var(--text); }
+    .logo-vault { color: var(--accent); }
+    #search-wrap {
+      flex: 1; max-width: 360px; display: flex; align-items: center; gap: 10px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 14px; transition: border-color 0.2s;
+    }
+    #search-wrap:focus-within { border-color: var(--accent); }
+    #search-wrap svg { color: var(--muted); flex-shrink: 0; }
+    #search-input { background: none; border: none; outline: none; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text); width: 100%; }
+    #search-input::placeholder { color: var(--muted); }
+    #topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    #user-info { display: flex; align-items: center; gap: 8px; }
+    #user-avatar { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--accent); }
+    #user-name { font-size: 13px; color: var(--muted2); }
+    #logout-btn { font-size: 12px; color: var(--muted); background: none; border: 1px solid var(--border2); border-radius: 6px; padding: 4px 10px; cursor: pointer; transition: all 0.15s; }
+    #logout-btn:hover { color: var(--text); border-color: var(--muted); }
 
-    /* HERO */
-    #hero { position: relative; height: 220px; border-radius: 12px; overflow: hidden; margin-bottom: 24px; display: flex; align-items: flex-end; padding: 20px; border: 1px solid var(--border); background: linear-gradient(135deg, #0f1f00 0%, #1a3300 40%, #0a1500 100%); }
-    .hero-bg-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; }
-    .hero-glow { position: absolute; top: -60px; right: -60px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(200,240,96,0.12) 0%, transparent 70%); pointer-events: none; }
-    .hero-content { position: relative; z-index: 1; }
-    .hero-tag { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
-    .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 1px; line-height: 1.1; color: var(--text); margin-bottom: 6px; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
-    .hero-meta { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
-    .hero-play { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #111; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; border: none; border-radius: 20px; padding: 8px 18px; cursor: pointer; }
-    .hero-play:hover { background: var(--accent2); }
+    /* ── SIDEBAR ── */
+    #sidebar {
+      background: var(--surface); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden;
+      transition: transform 0.25s ease;
+    }
+    #sidebar::-webkit-scrollbar { width: 0; }
+    .sidebar-section { padding: 20px 0 8px; }
+    .nav-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 1.8px;
+      text-transform: uppercase; color: var(--muted);
+      padding: 0 20px 8px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; font-size: 13px; color: var(--muted2);
+      cursor: pointer; transition: all 0.15s; position: relative;
+      user-select: none;
+    }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+    .nav-item.active { color: var(--text); }
+    .nav-item.active::before {
+      content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
+      width: 3px; background: var(--accent); border-radius: 0 2px 2px 0;
+    }
+    .nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; font-size: 11px; color: var(--muted); background: var(--surface2); padding: 1px 7px; border-radius: 10px; }
 
-    /* SECTIONS */
-    .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
-    .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 19px; letter-spacing: 1px; color: var(--text); }
-    .section-more { font-size: 12px; color: var(--muted); cursor: pointer; }
+    /* Carpetas colapsables */
+    .folder-group { border-top: 1px solid var(--border); margin-top: 4px; }
+    .folder-parent {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 20px; font-size: 13px; color: var(--muted2);
+      cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .folder-parent:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+    .folder-parent.active { color: var(--text); }
+    .folder-chevron { margin-left: auto; font-size: 11px; color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
+    .folder-chevron.open { transform: rotate(90deg); }
+    .folder-children { overflow: hidden; max-height: 0; transition: max-height 0.25s ease; }
+    .folder-children.open { max-height: 500px; }
+    .folder-child {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 20px 7px 44px; font-size: 12px; color: var(--muted);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .folder-child:hover { color: var(--muted2); background: rgba(255,255,255,0.02); }
+    .folder-child.active { color: var(--accent); }
+    .folder-child-count { margin-left: auto; font-size: 11px; color: #3a3a3a; }
+    #sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 49; }
+
+    /* ── SECTION TITLES ── */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; margin-top: 4px; }
+    .section-title { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: 0.3px; }
+    .section-more { font-size: 12px; color: var(--muted); cursor: pointer; transition: color 0.15s; }
     .section-more:hover { color: var(--accent); }
+    .section-divider { height: 1px; background: var(--border); margin: 24px 0; }
 
-    /* VIDEO / AUDIO GRID */
-    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; margin-bottom: 28px; }
-    .media-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.2s; position: relative; }
-    .media-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+    /* ── MEDIA GRID ── */
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 8px; }
+    .media-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden; cursor: pointer;
+      transition: all 0.2s; position: relative;
+    }
+    .media-card:hover { border-color: rgba(224,32,32,0.3); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
     .media-card:hover .card-overlay { opacity: 1; }
     .media-card:hover .fav-btn { opacity: 1; }
-    .card-thumb { aspect-ratio: 16/9; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 30px; position: relative; overflow: hidden; }
+
+    /* Thumb 16:9 para videos */
+    .card-thumb {
+      aspect-ratio: 16/9; background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; position: relative; overflow: hidden;
+    }
+    /* Thumb 1:1 para audio */
+    .card-thumb.sq {
+      aspect-ratio: 1/1;
+      background: linear-gradient(145deg, #1a0a0a 0%, #2a0a0a 40%, #1a0505 100%);
+    }
     .card-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .card-thumb.audio-square { aspect-ratio: 1/1; background: linear-gradient(135deg, #12122a 0%, #1a1a3a 50%, #0d0d1a 100%); border-radius: 6px 6px 0 0; }
-    .card-thumb.audio-square img { border-radius: 0; }
-    .album-vinyl { position: absolute; right: -20px; bottom: -20px; width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, #222 20%, #111 21%, #333 40%, #111 41%, #1a1a1a 100%); opacity: 0.25; pointer-events: none; }
-    .album-label { position: absolute; bottom: 8px; left: 10px; right: 10px; }
-    .album-label-text { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); opacity: 0.7; }
-    .card-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
-    .play-circle { width: 38px; height: 38px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #111; font-size: 15px; }
-    .card-info { padding: 9px 11px; }
-    .card-name { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-duration { position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.75); font-size: 10px; color: #ddd; padding: 2px 5px; border-radius: 4px; }
-    .card-type-badge { position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.65); font-size: 10px; color: #aaa; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.5px; }
-    .fav-btn { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%; background: rgba(0,0,0,0.65); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; opacity: 0; transition: opacity 0.2s, transform 0.15s; z-index: 2; }
-    .fav-btn:hover { transform: scale(1.15); }
-    .fav-btn.active { opacity: 1; }
+    .card-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;
+    }
+    .play-btn-circle {
+      width: 40px; height: 40px; background: var(--accent);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 15px; box-shadow: 0 4px 16px rgba(224,32,32,0.5);
+    }
+    .card-duration {
+      position: absolute; bottom: 6px; right: 6px;
+      background: rgba(0,0,0,0.8); font-size: 10px; color: #ccc;
+      padding: 2px 6px; border-radius: 4px; font-variant-numeric: tabular-nums;
+    }
+    .card-type-badge {
+      position: absolute; top: 6px; left: 6px;
+      background: var(--accent); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.5px; color: #fff; padding: 2px 6px; border-radius: 3px;
+    }
+    .fav-btn {
+      position: absolute; top: 6px; right: 6px; width: 28px; height: 28px;
+      border-radius: 50%; background: rgba(0,0,0,0.7); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 13px;
+      opacity: 0; transition: opacity 0.2s, transform 0.15s; z-index: 2;
+      color: var(--muted2);
+    }
+    .fav-btn:hover { transform: scale(1.2); }
+    .fav-btn.active { opacity: 1; color: var(--accent); }
+    .card-info { padding: 10px 12px 12px; }
+    .card-name { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; }
+    .card-sub { font-size: 11px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* AUDIO CARD — thumb cuadrado con onda */
-    .audio-thumb { aspect-ratio: 1/1; background: linear-gradient(135deg, #1a1a2e, #111); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; position: relative; overflow: hidden; }
-    .audio-icon { font-size: 28px; }
-    .audio-wave { display: flex; align-items: flex-end; gap: 2px; height: 20px; }
-    .audio-bar { width: 3px; background: var(--accent); border-radius: 2px; opacity: 0.6; }
+    /* Vinyl decoration for audio without cover */
+    .vinyl-deco { position: absolute; right: -18px; bottom: -18px; width: 80px; height: 80px; border-radius: 50%; background: repeating-radial-gradient(circle at center, #1a0a0a 0px, #1a0a0a 4px, #2a0a0a 5px, #2a0a0a 8px); opacity: 0.4; pointer-events: none; }
+    .audio-note { font-size: 32px; position: relative; z-index: 1; }
 
-    /* PHOTO GRID — cuadrada */
-
-    /* FOLDER PILLS */
-    .folder-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
-    .folder-pill { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 6px 13px; font-size: 12px; color: var(--muted); cursor: pointer; transition: all 0.15s; }
-    .folder-pill:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* TYPE FILTER TABS */
-    .type-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
-    .type-tab { padding: 5px 14px; border-radius: 16px; font-size: 12px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; transition: all 0.15s; background: var(--surface); }
-    .type-tab:hover { border-color: var(--border2); color: var(--text); }
-    .type-tab.active { background: rgba(200,240,96,0.1); border-color: var(--accent); color: var(--accent); }
-
-    /* PLAYER BAR */
-    #player-bar { display: flex; align-items: center; gap: 12px; padding: 0 16px; background: var(--surface); border-top: 1px solid var(--border); overflow: hidden; }
-    #player-thumb { width: 42px; height: 42px; background: var(--surface2); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; overflow: hidden; }
+    /* ── PLAYER BAR ── */
+    #player-bar {
+      display: flex; align-items: center; gap: 16px; padding: 0 24px;
+      background: var(--surface); border-top: 1px solid var(--border);
+    }
+    #player-thumb {
+      width: 44px; height: 44px; border-radius: 6px; background: var(--surface2);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+      flex-shrink: 0; overflow: hidden; border: 1px solid var(--border);
+    }
     #player-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    #player-info { flex: 1; min-width: 0; }
-    #player-title { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    #player-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-    #player-controls { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .ctrl { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 4px; transition: color 0.15s; }
+    #player-info { min-width: 0; flex: 0 0 200px; }
+    #player-title { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #player-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    #player-center { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    #player-controls { display: flex; align-items: center; gap: 16px; }
+    .ctrl { background: none; border: none; color: var(--muted2); cursor: pointer; font-size: 18px; line-height: 1; padding: 4px; transition: color 0.15s; }
     .ctrl:hover { color: var(--text); }
-    #play-pause { width: 34px; height: 34px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; color: #111; font-size: 13px; flex-shrink: 0; }
-    #progress-wrap { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 280px; }
-    #progress-bar { flex: 1; height: 3px; background: var(--border); border-radius: 2px; cursor: pointer; }
-    #progress-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; }
-    .time-label { font-size: 10px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
-    #vol-wrap { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-    #volume-slider { width: 60px; accent-color: var(--accent); }
+    #play-pause {
+      width: 36px; height: 36px; background: var(--accent); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: none; cursor: pointer; color: #fff; font-size: 13px;
+      box-shadow: 0 2px 10px rgba(224,32,32,0.4); transition: background 0.15s;
+    }
+    #play-pause:hover { background: var(--accent2); }
+    #progress-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 400px; }
+    #progress-bar { flex: 1; height: 3px; background: var(--surface3); border-radius: 2px; cursor: pointer; position: relative; }
+    #progress-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; pointer-events: none; }
+    .time-label { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    #vol-wrap { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    #vol-wrap span { font-size: 14px; color: var(--muted); }
+    #volume-slider { width: 70px; accent-color: var(--accent); }
 
-    /* MODAL VIDEO */
-    #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: none; align-items: center; justify-content: center; padding: 16px; }
+    /* ── MODAL VIDEO ── */
+    #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
     #modal.open { display: flex; }
     #modal-inner { position: relative; width: 100%; max-width: 960px; }
     #modal-iframe { width: 100%; aspect-ratio: 16/9; border: none; border-radius: 8px; background: #000; }
-    #modal-close { position: absolute; top: -38px; right: 0; background: none; border: none; color: var(--muted); font-size: 26px; cursor: pointer; line-height: 1; }
+    #modal-close { position: absolute; top: -42px; right: 0; background: none; border: none; color: var(--muted2); font-size: 26px; cursor: pointer; }
     #modal-close:hover { color: var(--text); }
-    #modal-footer { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-    #modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #modal-footer { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+    #modal-title { font-size: 16px; font-weight: 600; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     #modal-sub-text { font-size: 12px; color: var(--muted); }
-    #modal-fav-btn { background: var(--surface); border: 1px solid var(--border2); border-radius: 20px; padding: 5px 13px; font-size: 12px; color: var(--muted); cursor: pointer; white-space: nowrap; }
-    #modal-fav-btn.active { background: rgba(200,240,96,0.1); border-color: var(--accent); color: var(--accent); }
-    #modal-gdrive-btn { font-size: 12px; color: var(--muted); text-decoration: none; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 5px 13px; white-space: nowrap; }
+    #modal-fav-btn { background: var(--surface2); border: 1px solid var(--border2); border-radius: 6px; padding: 5px 12px; font-size: 12px; color: var(--muted2); cursor: pointer; }
+    #modal-fav-btn.active { border-color: var(--accent); color: var(--accent); }
+    #modal-gdrive-btn { font-size: 12px; color: var(--muted); text-decoration: none; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; }
 
-    /* MODAL FOTO */
-
-    /* MODAL AUDIO */
-    #audio-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: none; align-items: center; justify-content: center; padding: 16px; }
+    /* ── MODAL AUDIO ── */
+    #audio-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
     #audio-modal.open { display: flex; }
-    #audio-modal-inner { background: var(--surface); border: 1px solid var(--border2); border-radius: 16px; padding: 32px; width: 100%; max-width: 420px; text-align: center; position: relative; }
+    #audio-modal-inner {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 16px; padding: 36px 32px; width: 100%; max-width: 400px;
+      text-align: center; position: relative;
+    }
     #audio-modal-close { position: absolute; top: 14px; right: 16px; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; }
-    #audio-modal-cover { width: 160px; height: 160px; border-radius: 12px; object-fit: cover; margin: 0 auto 16px; display: block; background: var(--surface2); }
-    #audio-modal-cover-placeholder { width: 160px; height: 160px; border-radius: 12px; background: linear-gradient(135deg,#1a1a2e,#111); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 48px; }
-    #audio-modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--text); margin-bottom: 4px; }
+    #audio-cover-wrap { width: 180px; height: 180px; border-radius: 12px; margin: 0 auto 20px; overflow: hidden; background: linear-gradient(145deg, #1a0a0a, #2a0505); display: flex; align-items: center; justify-content: center; font-size: 52px; border: 1px solid var(--border2); position: relative; }
+    #audio-cover-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    #audio-modal-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
     #audio-modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-    #audio-el { width: 100%; accent-color: var(--accent); }
-    .audio-controls { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 16px; }
-    .audio-ctrl { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; transition: color 0.15s; }
+    #audio-el { width: 100%; accent-color: var(--accent); margin-bottom: 12px; }
+    .audio-btns { display: flex; align-items: center; justify-content: center; gap: 20px; }
+    .audio-ctrl { background: none; border: none; color: var(--muted2); font-size: 22px; cursor: pointer; transition: color 0.15s; }
     .audio-ctrl:hover { color: var(--text); }
-    #audio-play-btn { width: 48px; height: 48px; background: var(--accent); border-radius: 50%; border: none; cursor: pointer; color: #111; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+    #audio-play-btn {
+      width: 50px; height: 50px; background: var(--accent); border-radius: 50%;
+      border: none; cursor: pointer; color: #fff; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(224,32,32,0.4);
+    }
 
-    /* LOGIN */
-    #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 14px; text-align: center; padding: 20px; }
-    .login-logo { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 4px; }
-    .login-logo span { color: var(--accent); }
-    .login-sub { font-size: 14px; color: var(--muted); max-width: 280px; line-height: 1.6; }
-    #login-big-btn { display: flex; align-items: center; gap: 10px; background: var(--accent); color: #111; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 24px; padding: 11px 24px; cursor: pointer; margin-top: 6px; }
-    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; gap: 10px; color: var(--muted); text-align: center; padding: 20px; }
-    .empty-icon { font-size: 38px; opacity: 0.3; }
-    .loading-dots { display: flex; gap: 6px; align-items: center; justify-content: center; padding: 60px; }
+    /* ── LOGIN ── */
+    #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 16px; text-align: center; padding: 20px; }
+    .login-logo { font-family: 'Bebas Neue', sans-serif; font-size: 60px; letter-spacing: 5px; }
+    .login-stage { color: var(--text); }
+    .login-vault { color: var(--accent); }
+    .login-sub { font-size: 14px; color: var(--muted); max-width: 280px; line-height: 1.7; }
+    #login-big-btn {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--accent); color: #fff; font-family: 'Inter', sans-serif;
+      font-size: 14px; font-weight: 500; border: none; border-radius: 8px;
+      padding: 12px 28px; cursor: pointer; margin-top: 8px;
+      transition: background 0.15s; box-shadow: 0 4px 20px rgba(224,32,32,0.3);
+    }
+    #login-big-btn:hover { background: var(--accent2); }
+
+    /* ── STATES ── */
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; gap: 12px; color: var(--muted); text-align: center; }
+    .empty-icon { font-size: 40px; opacity: 0.25; }
+    .empty-text { font-size: 14px; }
+    .loading-dots { display: flex; gap: 6px; align-items: center; justify-content: center; padding: 80px; }
     .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 1.2s ease-in-out infinite; }
     .dot:nth-child(2) { animation-delay: 0.2s; }
     .dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes pulse { 0%,80%,100%{opacity:.3;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
-    #content::-webkit-scrollbar { width: 4px; }
-    #content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+    @keyframes pulse { 0%,80%,100%{opacity:.2;transform:scale(.7)} 40%{opacity:1;transform:scale(1)} }
 
-    /* MOBILE */
+    /* ── MOBILE ── */
     @media (max-width: 640px) {
-      #app { grid-template-rows: 52px 1fr var(--player-h); }
-      #topbar { padding: 0 14px; }
+      :root { --sidebar-w: 0px; }
       #menu-btn { display: flex; }
-      #search-wrap { max-width: none; }
-      #user-name { display: none; }
-      #logout-btn { display: none; }
       #main { grid-template-columns: 1fr; }
-      #sidebar { position: fixed; top: 52px; left: 0; bottom: var(--player-h); width: 260px; background: #0e0e0e; z-index: 50; transform: translateX(-100%); border-right: 1px solid var(--border2); }
+      #sidebar { position: fixed; top: 60px; left: 0; bottom: var(--player-h); width: 260px; z-index: 50; transform: translateX(-100%); }
       #sidebar.open { transform: translateX(0); }
       #sidebar-overlay.open { display: block; }
-      #content { padding: 16px 14px 16px; }
-      #hero { height: 180px; padding: 14px; margin-bottom: 18px; }
-      .hero-title { font-size: 24px; max-width: 240px; }
-      .hero-meta { display: none; }
-      .video-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .fav-btn { opacity: 1; }
-      #progress-wrap { display: none; }
+      #content { padding: 16px; }
+      #search-wrap { max-width: none; }
+      #user-name { display: none; }
+      #player-center { display: none; }
       #vol-wrap { display: none; }
-      #player-sub { display: none; }
+      #player-info { flex: 1; }
+      .media-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .fav-btn { opacity: 1; }
       #modal { padding: 0; align-items: flex-end; }
-      #modal-inner { border-radius: 12px 12px 0 0; background: #0e0e0e; overflow: hidden; }
+      #modal-inner { border-radius: 12px 12px 0 0; background: #111; overflow: hidden; }
       #modal-iframe { border-radius: 0; }
-      #modal-close { top: 10px; right: 12px; color: #fff; font-size: 20px; background: rgba(0,0,0,0.5); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; z-index: 2; }
-      #modal-footer { padding: 10px 14px 16px; }
-      #audio-modal-inner { padding: 24px 20px; }
+      #modal-close { top: 10px; right: 12px; color: #fff; background: rgba(0,0,0,0.6); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; position: absolute; z-index: 2; }
+      #modal-footer { padding: 12px 16px 20px; }
     }
-    @media (min-width: 641px) and (max-width: 900px) {
-      :root { --sidebar-w: 180px; }
-      .video-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
-      #progress-wrap { max-width: 180px; }
+    @media (min-width: 641px) and (max-width: 960px) {
+      :root { --sidebar-w: 200px; }
+      .media-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
       #vol-wrap { display: none; }
     }
   </style>
 </head>
 <body>
 <div id="app">
+
+  <!-- TOPBAR -->
   <div id="topbar">
     <button id="menu-btn" onclick="toggleSidebar()">☰</button>
-    <div class="logo">Stage<span>Vault</span></div>
+    <div class="logo"><span class="logo-stage">STAGE</span><span class="logo-vault">VAULT</span></div>
     <div id="search-wrap">
-      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#666;flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="search-input" placeholder="Buscar..." />
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search-input" placeholder="Buscar videos, audios..." />
     </div>
-    <div id="auth-area">
-      <button id="login-btn" onclick="signIn()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        Conectar Drive
-      </button>
+    <div id="topbar-right">
+      <div id="auth-area">
+        <button id="login-btn" onclick="signIn()" style="display:flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:Inter,sans-serif;font-size:13px;font-weight:500;cursor:pointer;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Iniciar sesión
+        </button>
+      </div>
     </div>
   </div>
 
   <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
+  <!-- MAIN -->
   <div id="main">
+
+    <!-- SIDEBAR -->
     <div id="sidebar">
-      <div class="nav-label">Navegar</div>
-      <div class="nav-item active" onclick="setView('home');closeSidebar()"><span class="nav-icon">⊞</span> Inicio</div>
-      <div class="nav-item" onclick="setView('videos');closeSidebar()"><span class="nav-icon">▶</span> Videos</div>
-      <div class="nav-item" onclick="setView('audio');closeSidebar()"><span class="nav-icon">♪</span> Audio</div>
-      <div class="nav-item" onclick="setView('recent');closeSidebar()"><span class="nav-icon">◷</span> Recientes</div>
-      <div class="nav-item" onclick="setView('favorites');closeSidebar()"><span class="nav-icon">♡</span> Favoritos</div>
-      <div class="nav-label" style="margin-top:8px">Carpetas</div>
-      <div id="sidebar-folders"></div>
+      <div class="sidebar-section">
+        <div class="nav-label">Biblioteca</div>
+        <div class="nav-item active" onclick="setView('home');closeSidebar()">
+          <span class="nav-icon">⊞</span> Inicio
+        </div>
+        <div class="nav-item" onclick="setView('videos');closeSidebar()">
+          <span class="nav-icon">▶</span> Videos
+          <span class="nav-badge" id="badge-videos">0</span>
+        </div>
+        <div class="nav-item" onclick="setView('audio');closeSidebar()">
+          <span class="nav-icon">♪</span> Audio
+          <span class="nav-badge" id="badge-audio">0</span>
+        </div>
+        <div class="nav-item" onclick="setView('recent');closeSidebar()">
+          <span class="nav-icon">◷</span> Recientes
+        </div>
+        <div class="nav-item" onclick="setView('favorites');closeSidebar()">
+          <span class="nav-icon">♡</span> Favoritos
+        </div>
+      </div>
+      <div class="sidebar-section" style="flex:1">
+        <div class="nav-label">Carpetas</div>
+        <div id="sidebar-folders"></div>
+      </div>
     </div>
 
+    <!-- CONTENT -->
     <div id="content">
       <div id="login-screen" style="display:none">
-        <div class="login-logo">Stage<span>Vault</span></div>
-        <p class="login-sub">Tu colección de conciertos, organizada y lista para reproducir desde Google Drive.</p>
+        <div class="login-logo"><span class="login-stage">STAGE</span><span class="login-vault">VAULT</span></div>
+        <p class="login-sub">Tu colección de conciertos y música, organizada desde Google Drive.</p>
         <button id="login-big-btn" onclick="signIn()">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
           Iniciar sesión con Google
@@ -249,25 +369,28 @@
     </div>
   </div>
 
+  <!-- PLAYER BAR -->
   <div id="player-bar">
     <div id="player-thumb">♪</div>
     <div id="player-info">
       <div id="player-title" style="color:var(--muted);font-size:12px">Ningún archivo seleccionado</div>
       <div id="player-sub"></div>
     </div>
-    <div id="player-controls">
-      <button class="ctrl" onclick="prevItem()">⏮</button>
-      <button id="play-pause" onclick="togglePlay()">▶</button>
-      <button class="ctrl" onclick="nextItem()">⏭</button>
-    </div>
-    <div id="progress-wrap">
-      <span class="time-label" id="time-current">0:00</span>
-      <div id="progress-bar"><div id="progress-fill"></div></div>
-      <span class="time-label" id="time-total">--:--</span>
+    <div id="player-center">
+      <div id="player-controls">
+        <button class="ctrl" onclick="prevItem()">⏮</button>
+        <button id="play-pause" onclick="togglePlay()">▶</button>
+        <button class="ctrl" onclick="nextItem()">⏭</button>
+      </div>
+      <div id="progress-row">
+        <span class="time-label" id="time-current">0:00</span>
+        <div id="progress-bar"><div id="progress-fill"></div></div>
+        <span class="time-label" id="time-total">--:--</span>
+      </div>
     </div>
     <div id="vol-wrap">
-      <span style="font-size:13px;color:var(--muted)">🔊</span>
-      <input type="range" id="volume-slider" min="0" max="100" value="80" />
+      <span>🔊</span>
+      <input type="range" id="volume-slider" min="0" max="100" value="80" oninput="setVolume(this.value)" />
     </div>
   </div>
 </div>
@@ -279,7 +402,7 @@
     <iframe id="modal-iframe" allowfullscreen></iframe>
     <div id="modal-footer">
       <div id="modal-title"></div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0">
         <span id="modal-sub-text"></span>
         <button id="modal-fav-btn" onclick="toggleFavCurrent()">♡ Favorito</button>
         <a id="modal-gdrive-btn" href="#" target="_blank">↗ Drive</a>
@@ -292,11 +415,11 @@
 <div id="audio-modal">
   <div id="audio-modal-inner">
     <button id="audio-modal-close" onclick="closeAudioModal()">✕</button>
-    <div id="audio-modal-cover-wrap"></div>
+    <div id="audio-cover-wrap">🎵</div>
     <div id="audio-modal-title"></div>
     <div id="audio-modal-sub"></div>
-    <audio id="audio-el" controls style="width:100%;margin-top:8px"></audio>
-    <div class="audio-controls">
+    <audio id="audio-el" controls style="width:100%;margin-bottom:8px"></audio>
+    <div class="audio-btns">
       <button class="audio-ctrl" onclick="prevItem()">⏮</button>
       <button id="audio-play-btn" onclick="toggleAudioPlay()">▶</button>
       <button class="audio-ctrl" onclick="nextItem()">⏭</button>
@@ -319,8 +442,9 @@ const ALL_TYPES   = [...VIDEO_TYPES, ...AUDIO_TYPES, ...IMAGE_TYPES];
 
 let tokenClient, accessToken = null;
 let allFiles = [], allVideos = [], allAudio = [];
-let coverMap = {}; // filename (sin ext) → thumbnailLink o driveUrl de imagen
-let folders = [];
+let coverMap = {};
+// folderTree: [{id, name, children:[{id,name,count}], count}]
+let folderTree = [], flatFolders = [];
 let currentPlaylist = [], currentIdx = 0, currentItem = null;
 let favorites = JSON.parse(localStorage.getItem('sv_favs')   || '[]');
 let recentIds = JSON.parse(localStorage.getItem('sv_recent') || '[]');
@@ -344,8 +468,8 @@ function showLoginScreen() {
 function signIn() { tokenClient.requestAccessToken({ prompt: '' }); }
 function signOut() {
   google.accounts.oauth2.revoke(accessToken, () => {});
-  accessToken = null; allFiles = []; allVideos = []; allAudio = []; folders = [];
-  document.getElementById('auth-area').innerHTML = `<button id="login-btn" onclick="signIn()">Conectar Drive</button>`;
+  accessToken = null; allFiles = []; allVideos = []; allAudio = []; flatFolders = []; folderTree = [];
+  document.getElementById('auth-area').innerHTML = `<button onclick="signIn()" style="display:flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:Inter,sans-serif;font-size:13px;font-weight:500;cursor:pointer;">Iniciar sesión</button>`;
   showLoginScreen();
 }
 
@@ -353,7 +477,12 @@ async function onSignedIn() {
   try {
     const me = await gapi.client.request({ path: 'https://www.googleapis.com/oauth2/v2/userinfo' });
     const u = me.result;
-    document.getElementById('auth-area').innerHTML = `<div id="user-info"><img id="user-avatar" src="${u.picture}" /><span id="user-name">${u.given_name}</span><button id="logout-btn" onclick="signOut()">Salir</button></div>`;
+    document.getElementById('auth-area').innerHTML = `
+      <div id="user-info">
+        <img id="user-avatar" src="${u.picture}" />
+        <span id="user-name">${u.given_name}</span>
+        <button id="logout-btn" onclick="signOut()">Salir</button>
+      </div>`;
   } catch(e) {}
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('home-view').style.display = 'block';
@@ -363,21 +492,50 @@ async function onSignedIn() {
   renderHomeView();
 }
 
-// ── CARGA DE ARCHIVOS ──
+// ── CARGA ──
 async function loadFiles() {
   const rootRes = await gapi.client.drive.files.list({
     q: `name='${ROOT_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
     fields: 'files(id,name)', pageSize: 5
   });
-  if (!rootRes.result.files || !rootRes.result.files.length) {
-    document.getElementById('home-view').innerHTML = `<div class="empty-state"><div class="empty-icon">📁</div><div>No encontré la carpeta <strong style="color:var(--text)">"${ROOT_NAME}"</strong>.</div></div>`;
+  if (!rootRes.result.files?.length) {
+    document.getElementById('home-view').innerHTML = `<div class="empty-state"><div class="empty-icon">📁</div><div class="empty-text">No encontré la carpeta "${ROOT_NAME}" en tu Drive.</div></div>`;
     return;
   }
   const rootId = rootRes.result.files[0].id;
+
+  // Recopilar carpetas con árbol (solo un nivel de profundidad para el sidebar)
   const allFolderIds = [rootId];
   const folderNames  = { [rootId]: ROOT_NAME };
-  await collectSubfolders(rootId, allFolderIds, folderNames);
+  const folderParent = { [rootId]: null };
 
+  // Primer nivel (hijos directos del root)
+  const lvl1Res = await gapi.client.drive.files.list({
+    q: `'${rootId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+    fields: 'files(id,name)', pageSize: 100
+  });
+  const lvl1 = lvl1Res.result.files || [];
+  for (const f of lvl1) {
+    allFolderIds.push(f.id); folderNames[f.id] = f.name; folderParent[f.id] = rootId;
+    // Segundo nivel
+    const lvl2Res = await gapi.client.drive.files.list({
+      q: `'${f.id}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+      fields: 'files(id,name)', pageSize: 100
+    });
+    for (const sf of (lvl2Res.result.files || [])) {
+      allFolderIds.push(sf.id); folderNames[sf.id] = sf.name; folderParent[sf.id] = f.id;
+      // Tercer nivel
+      const lvl3Res = await gapi.client.drive.files.list({
+        q: `'${sf.id}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+        fields: 'files(id,name)', pageSize: 100
+      });
+      for (const ssf of (lvl3Res.result.files || [])) {
+        allFolderIds.push(ssf.id); folderNames[ssf.id] = ssf.name; folderParent[ssf.id] = sf.id;
+      }
+    }
+  }
+
+  // Cargar archivos
   const mimeQ = ALL_TYPES.map(m => `mimeType='${m}'`).join(' or ');
   let rawFiles = [];
   for (const chunk of chunkArray(allFolderIds, 10)) {
@@ -386,135 +544,152 @@ async function loadFiles() {
     do {
       const res = await gapi.client.drive.files.list({
         q: `(${parentQ}) and (${mimeQ}) and trashed=false`,
-        fields: 'nextPageToken,files(id,name,mimeType,size,modifiedTime,thumbnailLink,videoMediaMetadata,imageMediaMetadata,parents)',
+        fields: 'nextPageToken,files(id,name,mimeType,size,modifiedTime,thumbnailLink,videoMediaMetadata,parents)',
         pageSize: 100, pageToken, orderBy: 'name'
       });
       rawFiles = rawFiles.concat(res.result.files || []);
       pageToken = res.result.nextPageToken || '';
     } while (pageToken);
   }
-
-  // Deduplicar
   const seen = new Set();
   rawFiles = rawFiles.filter(f => { if (seen.has(f.id)) return false; seen.add(f.id); return true; });
 
-  // Separar imágenes para usarlas como portadas
-  const imageFiles = rawFiles.filter(f => IMAGE_TYPES.includes(f.mimeType));
-  // Construir mapa: nombre_sin_ext → URL de la imagen
-  imageFiles.forEach(img => {
+  // Portadas
+  rawFiles.filter(f => IMAGE_TYPES.includes(f.mimeType)).forEach(img => {
     const key = img.name.replace(/\.[^/.]+$/, '').toLowerCase();
-    // Preferimos thumbnailLink, si no usamos el viewer de Drive
     coverMap[key] = img.thumbnailLink
-      ? img.thumbnailLink.replace('=s220', '=s400')
+      ? img.thumbnailLink.replace('=s220','=s400')
       : `https://drive.google.com/thumbnail?id=${img.id}&sz=s400`;
   });
 
-  // Mapear archivos multimedia
-  allFiles = rawFiles
-    .filter(f => !IMAGE_TYPES.includes(f.mimeType))
-    .map(f => {
-      const folderId   = f.parents ? f.parents[0] : rootId;
-      const nameClean  = f.name.replace(/\.[^/.]+$/, '');
-      const coverKey   = nameClean.toLowerCase();
-      const isVideo    = VIDEO_TYPES.includes(f.mimeType);
-      const isAudio    = AUDIO_TYPES.includes(f.mimeType);
-      // Portada: imagen con mismo nombre > thumbnail de Drive > null
-      const cover = coverMap[coverKey] || f.thumbnailLink || null;
-      return {
-        ...f,
-        folderId,
-        folderName: folderNames[folderId] || ROOT_NAME,
-        nameClean,
-        cover,
-        type: isVideo ? 'video' : isAudio ? 'audio' : 'other',
-        duration: f.videoMediaMetadata ? formatDuration(f.videoMediaMetadata.durationMillis) : '',
-        driveUrl:  `https://drive.google.com/file/d/${f.id}/view`,
-        embedUrl:  `https://drive.google.com/file/d/${f.id}/preview`,
-        streamUrl: `https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`,
-      };
-    });
+  // Mapear archivos multimedia (excluir imágenes)
+  allFiles = rawFiles.filter(f => !IMAGE_TYPES.includes(f.mimeType)).map(f => {
+    const folderId  = f.parents?.[0] || rootId;
+    const nameClean = f.name.replace(/\.[^/.]+$/, '');
+    const cover     = coverMap[nameClean.toLowerCase()] || f.thumbnailLink || null;
+    const isVideo   = VIDEO_TYPES.includes(f.mimeType);
+    return {
+      ...f, folderId, nameClean, cover,
+      folderName: folderNames[folderId] || ROOT_NAME,
+      type: isVideo ? 'video' : 'audio',
+      duration: f.videoMediaMetadata ? formatDuration(f.videoMediaMetadata.durationMillis) : '',
+      driveUrl:  `https://drive.google.com/file/d/${f.id}/view`,
+      embedUrl:  `https://drive.google.com/file/d/${f.id}/preview`,
+      streamUrl: `https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`,
+    };
+  }).sort((a,b) => a.nameClean.localeCompare(b.nameClean));
 
   allVideos = allFiles.filter(f => f.type === 'video');
   allAudio  = allFiles.filter(f => f.type === 'audio');
-  // Carpetas con contenido
-  const allItems = [...allFiles];
-  const folderIdsWithItems = [...new Set(allItems.map(f => f.folderId))];
-  folders = folderIdsWithItems.map(fid => ({
-    id: fid, name: folderNames[fid] || ROOT_NAME,
-    count: allItems.filter(f => f.folderId === fid).length
-  })).sort((a,b) => a.name.localeCompare(b.name));
-}
 
-async function collectSubfolders(parentId, result, nameMap) {
-  const res = await gapi.client.drive.files.list({
-    q: `'${parentId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-    fields: 'files(id,name)', pageSize: 100
-  });
-  for (const sub of (res.result.files || [])) {
-    result.push(sub.id); nameMap[sub.id] = sub.name;
-    await collectSubfolders(sub.id, result, nameMap);
+  // Actualizar badges
+  document.getElementById('badge-videos').textContent = allVideos.length;
+  document.getElementById('badge-audio').textContent  = allAudio.length;
+
+  // Construir árbol de carpetas para sidebar
+  // Solo mostrar carpetas que tengan archivos (directa o descendientes)
+  const folderFileCounts = {};
+  allFiles.forEach(f => { folderFileCounts[f.folderId] = (folderFileCounts[f.folderId] || 0) + 1; });
+
+  flatFolders = allFolderIds
+    .filter(id => id !== rootId && folderFileCounts[id])
+    .map(id => ({ id, name: folderNames[id], parentId: folderParent[id], count: folderFileCounts[id] || 0 }))
+    .sort((a,b) => a.name.localeCompare(b.name));
+
+  // Árbol: nivel 1 = hijos directos del root; nivel 2+ = sus hijos
+  const lvl1Ids = lvl1.map(f => f.id);
+  folderTree = flatFolders
+    .filter(f => f.parentId === rootId)
+    .map(parent => ({
+      ...parent,
+      children: flatFolders.filter(c => c.parentId === parent.id)
+    }));
+  // Si root tiene archivos directos, agregar como "General"
+  if (folderFileCounts[rootId]) {
+    folderTree.unshift({ id: rootId, name: ROOT_NAME, parentId: null, count: folderFileCounts[rootId], children: [] });
   }
 }
+
 function chunkArray(arr, size) { const c=[]; for(let i=0;i<arr.length;i+=size) c.push(arr.slice(i,i+size)); return c; }
 
-// ── RENDER ──
+// ── SIDEBAR ──
 function renderSidebar() {
-  document.getElementById('sidebar-folders').innerHTML = folders.map(f =>
-    `<div class="nav-item folder-item" onclick="setView('folder:${f.id}');closeSidebar()">
-      <span class="nav-icon" style="font-size:12px">📁</span>
-      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}</span>
-      <span class="folder-count">${f.count}</span>
-    </div>`).join('');
+  document.getElementById('sidebar-folders').innerHTML = folderTree.map(parent => {
+    const hasChildren = parent.children.length > 0;
+    const childrenHtml = hasChildren ? parent.children.map(c =>
+      `<div class="folder-child" onclick="setView('folder:${c.id}');closeSidebar()">
+        <span style="font-size:11px">📁</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</span>
+        <span class="folder-child-count">${c.count}</span>
+      </div>`).join('') : '';
+    return `<div class="folder-group">
+      <div class="folder-parent" id="fp-${parent.id}" onclick="toggleFolder('${parent.id}')">
+        <span style="font-size:13px">📁</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px">${esc(parent.name)}</span>
+        <span style="font-size:11px;color:var(--muted);margin-right:4px">${parent.count}</span>
+        ${hasChildren ? `<span class="folder-chevron" id="chev-${parent.id}">›</span>` : ''}
+      </div>
+      ${hasChildren ? `<div class="folder-children" id="fc-${parent.id}">${childrenHtml}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  // Click en carpeta padre sin hijos → navegar directo
+  folderTree.forEach(parent => {
+    if (!parent.children.length) {
+      document.getElementById(`fp-${parent.id}`)?.addEventListener('click', (e) => {
+        setView(`folder:${parent.id}`); closeSidebar();
+      });
+    }
+  });
 }
 
+function toggleFolder(id) {
+  const parent = folderTree.find(f => f.id === id);
+  if (!parent?.children.length) { setView(`folder:${id}`); closeSidebar(); return; }
+  const fc   = document.getElementById(`fc-${id}`);
+  const chev = document.getElementById(`chev-${id}`);
+  if (fc) fc.classList.toggle('open');
+  if (chev) chev.classList.toggle('open');
+}
+
+// ── RENDER HOME ──
 function renderHomeView() {
-  const hasVideos = allVideos.length > 0;
-  const hasAudio  = allAudio.length  > 0;
-  if (!hasVideos && !hasAudio) {
-    document.getElementById('home-view').innerHTML = `<div class="empty-state"><div class="empty-icon">🎬</div><div>No encontré archivos en <strong style="color:var(--text)">${ROOT_NAME}</strong>.</div></div>`;
+  if (!allFiles.length) {
+    document.getElementById('home-view').innerHTML = `<div class="empty-state"><div class="empty-icon">🎬</div><div class="empty-text">No encontré archivos en "${ROOT_NAME}".</div></div>`;
     return;
   }
   const recent = recentIds.map(id => allFiles.find(f => f.id === id)).filter(Boolean).slice(0,8);
-  const featured = allVideos[Math.floor(Math.random() * Math.min(allVideos.length || 1, 10))];
-  const heroThumb = featured?.cover || null;
-
-  document.getElementById('home-view').innerHTML = `
-    ${featured ? `
-    <div id="hero">
-      ${heroThumb ? `<img class="hero-bg-img" src="${heroThumb}" alt="" />` : ''}
-      <div class="hero-glow"></div>
-      <div class="hero-content">
-        <div class="hero-tag">★ Destacado</div>
-        <div class="hero-title">${esc(featured.nameClean)}</div>
-        <div class="hero-meta">${esc(featured.folderName)}${featured.duration?' · '+featured.duration:''}</div>
-        <button class="hero-play" onclick="openItem('${featured.id}')">▶ Reproducir</button>
-      </div>
-    </div>` : ''}
-    ${recent.length ? `<div class="section-header"><span class="section-title">Recientes</span><span class="section-more" onclick="setView('recent')">Ver todos</span></div><div class="video-grid">${recent.map(mediaCardHtml).join('')}</div>` : ''}
-    ${hasVideos ? `<div class="section-header"><span class="section-title">Videos</span><span class="section-more" onclick="setView('videos')">Ver todos (${allVideos.length})</span></div><div class="video-grid">${allVideos.slice(0,8).map(mediaCardHtml).join('')}</div>` : ''}
-    ${hasAudio ? `<div class="section-header"><span class="section-title">Audio</span><span class="section-more" onclick="setView('audio')">Ver todos (${allAudio.length})</span></div><div class="video-grid">${allAudio.slice(0,8).map(mediaCardHtml).join('')}</div>` : ''}
-    ${folders.length > 1 ? `<div class="section-header"><span class="section-title">Carpetas</span></div><div class="folder-pills">${folders.map(f=>`<div class="folder-pill" onclick="setView('folder:${f.id}')">📁 ${esc(f.name)} <span style="opacity:.5">${f.count}</span></div>`).join('')}</div>` : ''}
-  `;
+  let html = '';
+  if (recent.length) {
+    html += `<div class="section-header"><span class="section-title">Recientes</span><span class="section-more" onclick="setView('recent')">Ver todos</span></div>
+    <div class="media-grid">${recent.map(mediaCardHtml).join('')}</div><div class="section-divider"></div>`;
+  }
+  if (allVideos.length) {
+    html += `<div class="section-header"><span class="section-title">Videos</span><span class="section-more" onclick="setView('videos')">Ver todos · ${allVideos.length}</span></div>
+    <div class="media-grid">${allVideos.slice(0,8).map(mediaCardHtml).join('')}</div><div class="section-divider"></div>`;
+  }
+  if (allAudio.length) {
+    html += `<div class="section-header"><span class="section-title">Audio</span><span class="section-more" onclick="setView('audio')">Ver todos · ${allAudio.length}</span></div>
+    <div class="media-grid">${allAudio.slice(0,8).map(mediaCardHtml).join('')}</div>`;
+  }
+  document.getElementById('home-view').innerHTML = html;
 }
 
 function mediaCardHtml(f) {
-  const isFav = favorites.includes(f.id);
   const isAudio = f.type === 'audio';
-  const thumbClass = isAudio ? 'card-thumb audio-square' : 'card-thumb';
-  const thumbHtml = f.cover
+  const isFav   = favorites.includes(f.id);
+  const thumbClass = isAudio ? 'card-thumb sq' : 'card-thumb';
+  const thumbContent = f.cover
     ? `<img src="${f.cover}" alt="" onerror="this.style.display='none'" />`
     : isAudio
-      ? `<span style="font-size:38px;position:relative;z-index:1">🎵</span><div class="album-vinyl"></div>`
-      : `<span style="font-size:30px">🎬</span>`;
-  const badge = isAudio ? `<div class="card-type-badge">AUDIO</div>` : '';
-  const albumLabel = isAudio ? `<div class="album-label"><div class="album-label-text">${esc(f.folderName)}</div></div>` : '';
+      ? `<span class="audio-note">🎵</span><div class="vinyl-deco"></div>`
+      : `<span style="font-size:28px;opacity:.3">▶</span>`;
   return `<div class="media-card">
     <div class="${thumbClass}" onclick="openItem('${f.id}')">
-      ${thumbHtml}
-      <div class="card-overlay"><div class="play-circle">${isAudio?'♪':'▶'}</div></div>
+      ${thumbContent}
+      <div class="card-overlay"><div class="play-btn-circle">${isAudio?'♪':'▶'}</div></div>
       ${f.duration ? `<div class="card-duration">${f.duration}</div>` : ''}
-      ${badge}
-      ${albumLabel}
+      ${isAudio ? `<div class="card-type-badge">AUDIO</div>` : ''}
     </div>
     <button class="fav-btn ${isFav?'active':''}" onclick="toggleFav('${f.id}',event)">${isFav?'♥':'♡'}</button>
     <div class="card-info" onclick="openItem('${f.id}')">
@@ -524,77 +699,75 @@ function mediaCardHtml(f) {
   </div>`;
 }
 
-
 // ── VISTAS ──
 function setView(view) {
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  const navItems = document.querySelectorAll('.nav-item');
-  if (view==='home')      { navItems[0].classList.add('active'); renderHomeView(); return; }
-  if (view==='videos')    { navItems[1].classList.add('active'); renderMediaList('Videos', allVideos); return; }
-  if (view==='audio')     { navItems[3].classList.add('active'); renderMediaList('Audio', allAudio); return; }
-  if (view==='recent')    { navItems[3].classList.add('active'); renderMediaList('Recientes', recentIds.map(id=>allFiles.find(f=>f.id===id)).filter(Boolean)); return; }
-  if (view==='favorites') { navItems[4].classList.add('active'); renderMediaList('Favoritos ♥', allFiles.filter(f=>favorites.includes(f.id))); return; }
+  const nav = document.querySelectorAll('.nav-item');
+  if (view==='home')      { nav[0].classList.add('active'); renderHomeView(); return; }
+  if (view==='videos')    { nav[1].classList.add('active'); renderList('Videos', allVideos); return; }
+  if (view==='audio')     { nav[2].classList.add('active'); renderList('Audio', allAudio); return; }
+  if (view==='recent')    { nav[3].classList.add('active'); renderList('Recientes', recentIds.map(id=>allFiles.find(f=>f.id===id)).filter(Boolean)); return; }
+  if (view==='favorites') { nav[4].classList.add('active'); renderList('Favoritos', allFiles.filter(f=>favorites.includes(f.id))); return; }
   if (view.startsWith('folder:')) {
-    const fid = view.split(':')[1];
-    const folder = folders.find(f => f.id === fid);
-    const items = allFiles.filter(f => f.folderId === fid);
-    const vids  = items.filter(f => f.type==='video');
-    const aud   = items.filter(f => f.type==='audio');
-    let html = `<div class="section-title" style="margin-bottom:20px">${folder?esc(folder.name):'Carpeta'}</div>`;
-    if (vids.length)  html += `<div class="section-header"><span class="section-title">Videos</span></div><div class="video-grid">${vids.map(mediaCardHtml).join('')}</div>`;
-    if (aud.length)   html += `<div class="section-header"><span class="section-title">Audio</span></div><div class="video-grid">${aud.map(mediaCardHtml).join('')}</div>`;
-    document.getElementById('home-view').innerHTML = html || `<div class="empty-state"><div class="empty-icon">📭</div><div>No hay archivos aquí</div></div>`;
+    const fid   = view.split(':')[1];
+    const fname = flatFolders.find(f=>f.id===fid)?.name || folderTree.find(f=>f.id===fid)?.name || 'Carpeta';
+    const items = allFiles.filter(f => f.folderId === fid).sort((a,b)=>a.nameClean.localeCompare(b.nameClean));
+    renderList(fname, items);
   }
 }
 
-function renderMediaList(title, items) {
-  document.getElementById('home-view').innerHTML = !items.length
-    ? `<div class="section-title" style="margin-bottom:20px">${title}</div><div class="empty-state"><div class="empty-icon">📭</div><div>No hay archivos aquí</div></div>`
-    : `<div class="section-header"><span class="section-title">${title}</span><span style="font-size:12px;color:var(--muted)">${items.length} archivos</span></div><div class="video-grid">${items.map(mediaCardHtml).join('')}</div>`;
+function renderList(title, items) {
+  if (!items.length) {
+    document.getElementById('home-view').innerHTML = `<div class="section-header"><span class="section-title">${title}</span></div><div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">No hay archivos aquí</div></div>`;
+    return;
+  }
+  const vids = items.filter(f=>f.type==='video');
+  const auds = items.filter(f=>f.type==='audio');
+  let html = `<div class="section-header"><span class="section-title">${esc(title)}</span><span style="font-size:12px;color:var(--muted)">${items.length} archivos</span></div>`;
+  if (vids.length) html += `<div class="media-grid">${vids.map(mediaCardHtml).join('')}</div>`;
+  if (vids.length && auds.length) html += `<div class="section-divider"></div><div class="section-header"><span class="section-title">Audio</span></div>`;
+  if (auds.length) html += `<div class="media-grid">${auds.map(mediaCardHtml).join('')}</div>`;
+  document.getElementById('home-view').innerHTML = html;
 }
-
-
-// ── SIDEBAR MOBILE ──
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('open'); }
-function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
 
 // ── BÚSQUEDA ──
 document.getElementById('search-input').addEventListener('input', function() {
   const q = this.value.trim().toLowerCase();
   if (!q) { renderHomeView(); return; }
-  renderMediaList(`"${this.value}"`, allFiles.filter(f => f.nameClean.toLowerCase().includes(q) || f.folderName.toLowerCase().includes(q)));
+  const results = allFiles.filter(f => f.nameClean.toLowerCase().includes(q) || f.folderName.toLowerCase().includes(q));
+  renderList(`"${this.value}"`, results);
 });
+
+// ── SIDEBAR MOBILE ──
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('open'); }
+function closeSidebar()  { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
 
 // ── FAVORITOS ──
 function toggleFav(id, e) {
   if (e) e.stopPropagation();
-  favorites = favorites.includes(id) ? favorites.filter(f=>f!==id) : [...favorites, id];
+  favorites = favorites.includes(id) ? favorites.filter(x=>x!==id) : [...favorites, id];
   localStorage.setItem('sv_favs', JSON.stringify(favorites));
   if (e) { const btn=e.currentTarget; btn.textContent=favorites.includes(id)?'♥':'♡'; btn.classList.toggle('active',favorites.includes(id)); }
-  if (currentItem && currentItem.id===id) updateModalFavBtn();
+  if (currentItem?.id===id) updateModalFavBtn();
 }
 function toggleFavCurrent() { if (currentItem) toggleFav(currentItem.id, null); }
 function updateModalFavBtn() {
-  if (!currentItem) return;
-  const isFav = favorites.includes(currentItem.id);
+  const isFav = favorites.includes(currentItem?.id);
   const btn = document.getElementById('modal-fav-btn');
-  if (btn) { btn.textContent = isFav?'♥ Favorito':'♡ Favorito'; btn.classList.toggle('active',isFav); }
+  if (btn) { btn.textContent=isFav?'♥ Favorito':'♡ Favorito'; btn.classList.toggle('active',isFav); }
 }
 
-// ── ABRIR ITEM ──
+// ── REPRODUCCIÓN ──
 function openItem(id) {
   const item = allFiles.find(f => f.id === id);
   if (!item) return;
-  if (item.type === 'audio') { openAudio(item); return; }
-  openVideo(item);
+  if (item.type==='audio') openAudio(item); else openVideo(item);
 }
 
-// ── VIDEO ──
 function openVideo(item) {
   currentItem = item;
   currentPlaylist = allVideos; currentIdx = allVideos.findIndex(f=>f.id===item.id);
-  updateRecent(item.id);
-  updatePlayerBar(item);
+  updateRecent(item.id); updatePlayerBar(item);
   document.getElementById('modal-iframe').src = item.embedUrl;
   document.getElementById('modal-title').textContent = item.nameClean;
   document.getElementById('modal-sub-text').textContent = item.folderName + (item.duration?' · '+item.duration:'');
@@ -604,62 +777,45 @@ function openVideo(item) {
 }
 function closeModal() { document.getElementById('modal').classList.remove('open'); document.getElementById('modal-iframe').src=''; }
 
-// ── AUDIO ──
 function openAudio(item) {
   currentItem = item;
   currentPlaylist = allAudio; currentIdx = allAudio.findIndex(f=>f.id===item.id);
-  updateRecent(item.id);
-  updatePlayerBar(item);
-  // Cover
-  const coverWrap = document.getElementById('audio-modal-cover-wrap');
-  coverWrap.innerHTML = item.cover
-    ? `<img id="audio-modal-cover" src="${item.cover}" alt="" />`
-    : `<div id="audio-modal-cover-placeholder">🎵</div>`;
+  updateRecent(item.id); updatePlayerBar(item);
+  const wrap = document.getElementById('audio-cover-wrap');
+  wrap.innerHTML = item.cover ? `<img src="${item.cover}" alt="" />` : '🎵';
   document.getElementById('audio-modal-title').textContent = item.nameClean;
   document.getElementById('audio-modal-sub').textContent = item.folderName;
-  const audioEl = document.getElementById('audio-el');
-  audioEl.src = item.streamUrl + `&access_token=${accessToken}`;
-  audioEl.load();
+  const el = document.getElementById('audio-el');
+  el.src = item.streamUrl + `&access_token=${accessToken}`;
+  el.load();
   document.getElementById('audio-modal').classList.add('open');
-  audioEl.play().catch(()=>{});
+  el.play().catch(()=>{});
 }
-function closeAudioModal() {
-  document.getElementById('audio-modal').classList.remove('open');
-  document.getElementById('audio-el').pause();
-}
+function closeAudioModal() { document.getElementById('audio-modal').classList.remove('open'); document.getElementById('audio-el').pause(); }
 function toggleAudioPlay() {
   const a = document.getElementById('audio-el');
-  if (a.paused) { a.play(); document.getElementById('audio-play-btn').textContent='⏸'; }
-  else { a.pause(); document.getElementById('audio-play-btn').textContent='▶'; }
+  const btn = document.getElementById('audio-play-btn');
+  if (a.paused) { a.play(); btn.textContent='⏸'; } else { a.pause(); btn.textContent='▶'; }
 }
-document.getElementById('audio-el').addEventListener('ended', () => nextItem());
+document.getElementById('audio-el').addEventListener('ended', nextItem);
 
-
-// ── PLAYER BAR ──
 function updatePlayerBar(item) {
   document.getElementById('player-title').textContent = item.nameClean;
-  document.getElementById('player-sub').textContent = item.folderName;
-  document.getElementById('player-thumb').innerHTML = item.cover ? `<img src="${item.cover}" alt="" />` : (item.type==='audio'?'🎵':'🎬');
+  document.getElementById('player-sub').textContent   = item.folderName;
+  document.getElementById('player-thumb').innerHTML   = item.cover ? `<img src="${item.cover}" alt="" />` : (item.type==='audio'?'🎵':'🎬');
 }
+function updateRecent(id) { recentIds=[id,...recentIds.filter(x=>x!==id)].slice(0,20); localStorage.setItem('sv_recent',JSON.stringify(recentIds)); }
 function togglePlay() { if (currentItem) { if(currentItem.type==='audio') document.getElementById('audio-modal').classList.add('open'); else document.getElementById('modal').classList.add('open'); } }
-function prevItem() { if (!currentPlaylist.length) return; currentIdx=(currentIdx-1+currentPlaylist.length)%currentPlaylist.length; const item=currentPlaylist[currentIdx]; if(item.type==='audio') openAudio(item); else openVideo(item); }
-function nextItem() { if (!currentPlaylist.length) return; currentIdx=(currentIdx+1)%currentPlaylist.length; const item=currentPlaylist[currentIdx]; if(item.type==='audio') openAudio(item); else openVideo(item); }
+function prevItem() { if(!currentPlaylist.length) return; currentIdx=(currentIdx-1+currentPlaylist.length)%currentPlaylist.length; openItem(currentPlaylist[currentIdx].id); }
+function nextItem() { if(!currentPlaylist.length) return; currentIdx=(currentIdx+1)%currentPlaylist.length; openItem(currentPlaylist[currentIdx].id); }
+function setVolume(v) { document.getElementById('audio-el').volume=v/100; }
 
-function updateRecent(id) {
-  recentIds = [id, ...recentIds.filter(x=>x!==id)].slice(0,20);
-  localStorage.setItem('sv_recent', JSON.stringify(recentIds));
-}
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeModal(); closeAudioModal(); } });
+document.getElementById('modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+document.getElementById('audio-modal').addEventListener('click', function(e){ if(e.target===this) closeAudioModal(); });
 
-// ── TECLADO ──
-document.addEventListener('keydown', e => {
-  if (e.key==='Escape') { closeModal(); closeAudioModal(); }
-});
-document.getElementById('modal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
-document.getElementById('audio-modal').addEventListener('click', function(e) { if(e.target===this) closeAudioModal(); });
-
-// ── UTILS ──
 function formatDuration(ms) { if(!ms)return''; const s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60); return h>0?`${h}:${String(m%60).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`:`${m}:${String(s%60).padStart(2,'0')}`; }
-function esc(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>

@@ -284,14 +284,30 @@ const saveRec=()=>localStorage.setItem('sv_r',JSON.stringify(recs));
 window.onload=()=>{
   gapi.load('client',async()=>{
     await gapi.client.init({apiKey:AK,discoveryDocs:['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']});
-    tc=google.accounts.oauth2.initTokenClient({client_id:CID,scope:'https://www.googleapis.com/auth/drive.readonly',
-      callback:r=>{if(!r.error){ak=r.access_token;onIn();}}});
+    
+    /* MODIFICACIÓN: Control de respuestas y errores en la inicialización */
+    tc=google.accounts.oauth2.initTokenClient({
+      client_id:CID,
+      scope:'https://www.googleapis.com/auth/drive.readonly',
+      callback:r=>{
+        if(r.error){
+          console.error("Error en la autenticación de Google:", r);
+          alert("Ocurrió un error al autenticar la cuenta con Google. Verifica la consola.");
+        }else{
+          ak=r.access_token;
+          onIn();
+        }
+      }
+    });
     showLogin();
   });
 };
 
 function showLogin(){$('ls').style.display='flex';$('hv').style.display='none';}
-function signIn(){tc.requestAccessToken({prompt:''});}
+
+/* MODIFICACIÓN: Eliminado el parámetro {prompt:''} que bloqueaba el popup */
+function signIn(){tc.requestAccessToken();}
+
 function signOut(){
   google.accounts.oauth2.revoke(ak,()=>{});
   ak=null;aF=[];aV=[];aA=[];fF=[];fT=[];

@@ -118,7 +118,7 @@
     .section-divider { height: 1px; background: var(--border); margin: 24px 0; }
 
     /* ── MEDIA GRID ── */
-    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 8px; }
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 8px; align-items: start; }
     .media-card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 8px; overflow: hidden; cursor: pointer;
@@ -236,7 +236,6 @@
     #audio-cover-wrap img { width: 100%; height: 100%; object-fit: cover; }
     #audio-modal-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
     #audio-modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
-    #audio-el { width: 100%; accent-color: var(--accent); margin-bottom: 12px; }
     .audio-btns { display: flex; align-items: center; justify-content: center; gap: 20px; }
     .audio-ctrl { background: none; border: none; color: var(--muted2); font-size: 22px; cursor: pointer; transition: color 0.15s; }
     .audio-ctrl:hover { color: var(--text); }
@@ -424,10 +423,11 @@
     <div id="audio-cover-wrap">🎵</div>
     <div id="audio-modal-title"></div>
     <div id="audio-modal-sub"></div>
-    <audio id="audio-el" controls style="width:100%;margin-bottom:8px"></audio>
+    <!-- iframe embed de Drive — reproduce audio sin problemas de CORS -->
+    <iframe id="audio-el" allowfullscreen style="width:100%;height:80px;border:none;border-radius:8px;margin-bottom:8px;background:#000"></iframe>
     <div class="audio-btns">
       <button class="audio-ctrl" onclick="prevItem()">⏮</button>
-      <button id="audio-play-btn" onclick="toggleAudioPlay()">▶</button>
+      <button id="audio-play-btn" onclick="toggleAudioPlay()" style="opacity:0.4;cursor:default" disabled>⏸</button>
       <button class="audio-ctrl" onclick="nextItem()">⏭</button>
     </div>
   </div>
@@ -818,19 +818,18 @@ function openAudio(item) {
   wrap.innerHTML = item.cover ? `<img src="${item.cover}" alt="" />` : '🎵';
   document.getElementById('audio-modal-title').textContent = item.nameClean;
   document.getElementById('audio-modal-sub').textContent = item.folderName;
-  const el = document.getElementById('audio-el');
-  el.src = item.streamUrl + `&access_token=${accessToken}`;
-  el.load();
+  // Iframe embed de Drive igual que videos — evita CORS y funciona de inmediato
+  document.getElementById('audio-el').src = item.embedUrl;
+  document.getElementById('audio-play-btn').textContent = '⏸';
   document.getElementById('audio-modal').classList.add('open');
-  el.play().catch(()=>{});
 }
-function closeAudioModal() { document.getElementById('audio-modal').classList.remove('open'); document.getElementById('audio-el').pause(); }
+function closeAudioModal() {
+  document.getElementById('audio-modal').classList.remove('open');
+  document.getElementById('audio-el').src = '';
+}
 function toggleAudioPlay() {
-  const a = document.getElementById('audio-el');
-  const btn = document.getElementById('audio-play-btn');
-  if (a.paused) { a.play(); btn.textContent='⏸'; } else { a.pause(); btn.textContent='▶'; }
+  document.getElementById('audio-modal').classList.add('open');
 }
-document.getElementById('audio-el').addEventListener('ended', nextItem);
 
 function updatePlayerBar(item) {
   document.getElementById('player-title').textContent = item.nameClean;
